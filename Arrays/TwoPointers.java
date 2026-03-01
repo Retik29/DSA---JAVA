@@ -7,7 +7,7 @@ public class TwoPointers {
 
     // Find pair in sorted array that sums to target
     static int[] twoSum(int[] arr, int target) {
-        int lo = 0, hi = arr.length - 1;
+        int lo = 0, hi = arr.length - 1;// Start with two pointers at the ends of the array.lo and hi will move towards each other until they meet.
         while (lo < hi) {
             int sum = arr[lo] + arr[hi];
             if (sum == target)

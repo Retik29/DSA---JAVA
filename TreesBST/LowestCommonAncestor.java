@@ -1,8 +1,32 @@
 
-// Lowest Common Ancestor (LCA) in a Binary Tree
-// Time Complexity: O(n) | Space Complexity: O(h) where h is height
+/**
+ * Lowest Common Ancestor (LCA) in a Binary Tree
+ * 
+ * Problem: For two nodes 'n1' and 'n2' in a binary tree, find the lowest 
+ * node that has both nodes as descendants (where a node can be a descendant of itself).
+ * 
+ * Logic (Recursive Approach):
+ * 1. Base Case: If the current node is null, or if it matches either 'n1' or 'n2', 
+ *    return the current node.
+ * 2. Recursive Step: Search for 'n1' and 'n2' in the left and right subtrees.
+ * 3. Consolidation:
+ *    - If left subtree returns a non-null node and right subtree also returns 
+ *      a non-null node, it means 'n1' and 'n2' are on different sides of the 
+ *      current node. Thus, the current node is their Lowest Common Ancestor.
+ *    - If only one subtree returns a non-null node, then both 'n1' and 'n2' 
+ *      (or at least the one found) are located in that subtree. 
+ *      Return the found node.
+ * 
+ * Note: This works for any binary tree, not just Binary Search Trees.
+ * 
+ * Time Complexity : O(n) - Visits every node at most once.
+ * Space Complexity: O(h) - Recursive call stack, where h is height.
+ */
 import java.util.*;
 
+/**
+ * Standard Node structure for a Binary Tree.
+ */
 class Node {
     int data;
     Node left, right;
@@ -14,44 +38,59 @@ class Node {
 
 public class LowestCommonAncestor {
 
+    /**
+     * Recursively finds the LCA of nodes n1 and n2.
+     * 
+     * @param root The root of the binary tree
+     * @param n1   Data of first node
+     * @param n2   Data of second node
+     * @return LCA node if found, otherwise null
+     */
     static Node findLCA(Node root, int n1, int n2) {
-        if (root == null)
-            return null;
-
-        // If either n1 or n2 matches with root's data, report the presence
-        if (root.data == n1 || root.data == n2)
+        // Base case: null or found one of the keys
+        if (root == null || root.data == n1 || root.data == n2) {
             return root;
+        }
 
-        // Look for keys in left and right subtrees
-        Node leftLCA = findLCA(root.left, n1, n2);
-        Node rightLCA = findLCA(root.right, n1, n2);
+        // Search in subtrees
+        Node leftResult = findLCA(root.left, n1, n2);
+        Node rightResult = findLCA(root.right, n1, n2);
 
-        // If both nodes are found in different subtrees, root is LCA
-        if (leftLCA != null && rightLCA != null)
+        // If both subtrees returned non-null, n1 and n2 are on different sides
+        if (leftResult != null && rightResult != null) {
             return root;
+        }
 
-        // Otherwise return non-null node
-        return (leftLCA != null) ? leftLCA : rightLCA;
+        // If one is null, return the other (could be null or the actual node)
+        return (leftResult != null) ? leftResult : rightResult;
     }
 
-    // Helper to build tree from level order array
+    /**
+     * Utility to build a tree from a Level Order array.
+     */
     static Node buildTree(Integer[] arr) {
         if (arr.length == 0 || arr[0] == null)
             return null;
+
         Node root = new Node(arr[0]);
-        Queue<Node> q = new LinkedList<>();
-        q.add(root);
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+
         int i = 1;
-        while (!q.isEmpty() && i < arr.length) {
-            Node curr = q.poll();
+        while (!queue.isEmpty() && i < arr.length) {
+            Node current = queue.poll();
+
+            // Handle left child
             if (i < arr.length && arr[i] != null) {
-                curr.left = new Node(arr[i]);
-                q.add(curr.left);
+                current.left = new Node(arr[i]);
+                queue.add(current.left);
             }
             i++;
+
+            // Handle right child
             if (i < arr.length && arr[i] != null) {
-                curr.right = new Node(arr[i]);
-                q.add(curr.right);
+                current.right = new Node(arr[i]);
+                queue.add(current.right);
             }
             i++;
         }
@@ -61,21 +100,26 @@ public class LowestCommonAncestor {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        // Sample tree: [3,5,1,6,2,0,8,null,null,7,4]
-        System.out.println("Building a sample tree for Demonstration...");
+        // Sample tree structure
+        System.out.println("Processing Demo Tree...");
         Integer[] treeData = { 3, 5, 1, 6, 2, 0, 8, null, null, 7, 4 };
         Node root = buildTree(treeData);
 
-        System.out.print("Enter first node data: ");
+        System.out.println("Tree built successfully.");
+        System.out.print("Enter first node value: ");
         int n1 = sc.nextInt();
-        System.out.print("Enter second node data: ");
+        System.out.print("Enter second node value: ");
         int n2 = sc.nextInt();
 
         Node lca = findLCA(root, n1, n2);
-        if (lca != null)
-            System.out.println("LCA of " + n1 + " and " + n2 + " is: " + lca.data);
-        else
-            System.out.println("LCA not found.");
+
+        // Output results
+        System.out.println("\n--- LCA Result ---");
+        if (lca != null) {
+            System.out.println("Lowest Common Ancestor: " + lca.data);
+        } else {
+            System.out.println("LCA not found (nodes might not exist in the tree).");
+        }
 
         sc.close();
     }

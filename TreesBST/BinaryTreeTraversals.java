@@ -1,10 +1,30 @@
 
-// Binary Tree Traversals — Inorder, Preorder, Postorder, Level Order
-// Time: O(n) | Space: O(h) recursive, O(n) iterative
+/**
+ * Binary Tree Traversals
+ * 
+ * Problem: Visit all the nodes of a binary tree in a specific order.
+ * 
+ * 1. Depth First Search (DFS):
+ *    - Inorder (Left, Root, Right): Useful for BSTs as it visits nodes in sorted order.
+ *    - Preorder (Root, Left, Right): Useful for creating a copy of the tree.
+ *    - Postorder (Left, Right, Root): Useful for deleting nodes or evaluating expressions.
+ * 
+ * 2. Breadth First Search (BFS):
+ *    - Level Order: Visits nodes level by level from top to bottom.
+ * 
+ * Time Complexity : O(n) - Every node is visited exactly once.
+ * Space Complexity: 
+ * - Recursive DFS: O(h) where h is height (for recursion stack).
+ * - Iterative DFS: O(h) (for explicit stack).
+ * - BFS: O(n) in the worst case (for queue storage).
+ */
 import java.util.*;
 
 public class BinaryTreeTraversals {
 
+    /**
+     * Basic structure of a Tree Node.
+     */
     static class Node {
         int data;
         Node left, right;
@@ -14,92 +34,128 @@ public class BinaryTreeTraversals {
         }
     }
 
-    // Recursive traversals
-    static void inorder(Node r) {
-        if (r != null) {
-            inorder(r.left);
-            System.out.print(r.data + " ");
-            inorder(r.right);
+    // --- RECURSIVE DFS TRAVERSALS ---
+
+    /**
+     * Inorder: Left -> Root -> Right
+     */
+    static void inorder(Node root) {
+        if (root != null) {
+            inorder(root.left);
+            System.out.print(root.data + " ");
+            inorder(root.right);
         }
     }
 
-    static void preorder(Node r) {
-        if (r != null) {
-            System.out.print(r.data + " ");
-            preorder(r.left);
-            preorder(r.right);
+    /**
+     * Preorder: Root -> Left -> Right
+     */
+    static void preorder(Node root) {
+        if (root != null) {
+            System.out.print(root.data + " ");
+            preorder(root.left);
+            preorder(root.right);
         }
     }
 
-    static void postorder(Node r) {
-        if (r != null) {
-            postorder(r.left);
-            postorder(r.right);
-            System.out.print(r.data + " ");
+    /**
+     * Postorder: Left -> Right -> Root
+     */
+    static void postorder(Node root) {
+        if (root != null) {
+            postorder(root.left);
+            postorder(root.right);
+            System.out.print(root.data + " ");
         }
     }
 
-    // Iterative inorder using stack
+    // --- ITERATIVE DFS ---
+
+    /**
+     * Iterative Inorder using an explicit Stack.
+     */
     static List<Integer> inorderIterative(Node root) {
-        List<Integer> res = new ArrayList<>();
+        List<Integer> result = new ArrayList<>();
         Deque<Node> stack = new ArrayDeque<>();
-        Node cur = root;
-        while (cur != null || !stack.isEmpty()) {
-            while (cur != null) {
-                stack.push(cur);
-                cur = cur.left;
-            }
-            cur = stack.pop();
-            res.add(cur.data);
-            cur = cur.right;
-        }
-        return res;
-    }
+        Node current = root;
 
-    // Level order (BFS)
-    static List<List<Integer>> levelOrder(Node root) {
-        List<List<Integer>> result = new ArrayList<>();
-        if (root == null)
-            return result;
-        Queue<Node> q = new LinkedList<>();
-        q.add(root);
-        while (!q.isEmpty()) {
-            int sz = q.size();
-            List<Integer> level = new ArrayList<>();
-            for (int i = 0; i < sz; i++) {
-                Node n = q.poll();
-                level.add(n.data);
-                if (n.left != null)
-                    q.add(n.left);
-                if (n.right != null)
-                    q.add(n.right);
+        while (current != null || !stack.isEmpty()) {
+            // Keep going left as far as possible
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
             }
-            result.add(level);
+            // Visit current node
+            current = stack.pop();
+            result.add(current.data);
+
+            // Go right
+            current = current.right;
         }
         return result;
     }
 
-    // Build tree interactively (level order, -1 = null)
+    // --- BREADTH FIRST SEARCH (BFS) ---
+
+    /**
+     * Level Order Traversal using a Queue.
+     */
+    static List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null)
+            return result;
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            List<Integer> currentLevel = new ArrayList<>();
+
+            for (int i = 0; i < levelSize; i++) {
+                Node node = queue.poll();
+                currentLevel.add(node.data);
+
+                // Add children to queue for next level
+                if (node.left != null)
+                    queue.add(node.left);
+                if (node.right != null)
+                    queue.add(node.right);
+            }
+            result.add(currentLevel);
+        }
+        return result;
+    }
+
+    /**
+     * Builds a tree based on Level Order Input.
+     * Use -1 for Null nodes.
+     */
     static Node buildTree(Scanner sc) {
-        System.out.print("Enter root value (-1 for null): ");
+        System.out.println("\n--- Build Binary Tree (Level Order) ---");
+        System.out.print("Enter root value (-1 for none): ");
         int val = sc.nextInt();
         if (val == -1)
             return null;
+
         Node root = new Node(val);
         Queue<Node> q = new LinkedList<>();
         q.add(root);
+
         while (!q.isEmpty()) {
             Node cur = q.poll();
-            System.out.print("Left child of " + cur.data + " (-1=null): ");
-            int l = sc.nextInt();
-            if (l != -1) {
-                cur.left = new Node(l);
+
+            System.out.print("Left child of " + cur.data + " (-1 for null): ");
+            int le = sc.nextInt();
+            if (le != -1) {
+                cur.left = new Node(le);
                 q.add(cur.left);
             }
-            System.out.print("Right child of " + cur.data + " (-1=null): ");
-            int r = sc.nextInt();
-            if (r != -1) {
-                cur.right = new Node(r);
+
+            System.out.print("Right child of " + cur.data + " (-1 for null): ");
+            int ri = sc.nextInt();
+            if (ri != -1) {
+                cur.right = new Node(ri);
                 q.add(cur.right);
             }
         }
@@ -109,18 +165,25 @@ public class BinaryTreeTraversals {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+        // Build the tree
         Node root = buildTree(sc);
 
-        System.out.print("\nInorder:    ");
+        // Display traversals
+        System.out.println("\n--- Traversal Results ---");
+
+        System.out.print("Inorder (Recursive):   ");
         inorder(root);
         System.out.println();
-        System.out.print("Preorder:   ");
+
+        System.out.print("Preorder (Recursive):  ");
         preorder(root);
         System.out.println();
-        System.out.print("Postorder:  ");
+
+        System.out.print("Postorder (Recursive): ");
         postorder(root);
         System.out.println();
-        System.out.println("Level order: " + levelOrder(root));
+
+        System.out.println("Level Order (Lists):   " + levelOrder(root));
 
         sc.close();
     }

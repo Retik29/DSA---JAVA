@@ -1,80 +1,137 @@
 
-// Sudoku Solver - Backtracking
-// Time Complexity: O(9^(n*n)) | Space Complexity: O(n*n)
+/**
+ * Sudoku Solver (Backtracking)
+ * 
+ * Problem: A 9x9 grid where some cells are filled with numbers 1-9. 
+ * The goal is to fill all empty cells (represented by 0) such that:
+ * 1. Each row contains digits 1-9 exactly once.
+ * 2. Each column contains digits 1-9 exactly once.
+ * 3. Each of the nine 3x3 subgrids contains digits 1-9 exactly once.
+ * 
+ * Logic (Backtracking Strategy):
+ * 1. Find Empty: Find an empty cell (board[i][j] == 0).
+ * 2. Try Digits: Try digits 1 to 9 in that cell.
+ * 3. Safe Check (Pruning): Before placing a digit, check if it violates any 
+ *    Sudoku rules in its row, column, or 3x3 box.
+ * 4. Recurse: If safe, place the digit and recursively call solver for the next cell.
+ * 5. Backtrack: If the recursion returns false, reset cell to 0 and try the next digit.
+ * 
+ * Complexity:
+ * - Time Complexity : O(9^(n*n)) - In the absolute worst case, it's exponential.
+ * - Space Complexity: O(n*n) - For the board and recursion stack.
+ */
 import java.util.*;
 
 public class SudokuSolver {
-    static boolean isSafe(int[][] board, int row, int col, int num) {
-        for (int d = 0; d < 9; d++) {
-            if (board[row][d] == num || board[d][col] == num)
-                return false;
-        }
-        int sqrt = 3;
-        int boxRowStart = row - row % sqrt;
-        int boxColStart = col - col % sqrt;
 
-        for (int r = boxRowStart; r < boxRowStart + sqrt; r++) {
-            for (int d = boxColStart; d < boxColStart + sqrt; d++) {
-                if (board[r][d] == num)
-                    return false;
+    /**
+     * Checks if placing 'num' at board[row][col] is valid according to Sudoku
+     * rules.
+     */
+    static boolean isSafe(int[][] board, int row, int col, int num) {
+        // 1. Check Row and Column
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == num || board[i][col] == num) {
+                return false;
             }
         }
+
+        // 2. Check 3x3 Box
+        int boxRowStart = row - row % 3;
+        int boxColStart = col - col % 3;
+
+        for (int r = boxRowStart; r < boxRowStart + 3; r++) {
+            for (int c = boxColStart; c < boxColStart + 3; c++) {
+                if (board[r][c] == num) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
-    static boolean solveSudoku(int[][] board, int n) {
+    /**
+     * Main recursive function to solve the Sudoku.
+     */
+    static boolean solveSudoku(int[][] board) {
         int row = -1;
         int col = -1;
-        boolean isEmpty = true;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        boolean isFull = true;
+
+        // Step 1: Find the first empty cell
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
                 if (board[i][j] == 0) {
                     row = i;
                     col = j;
-                    isEmpty = false;
+                    isFull = false;
                     break;
                 }
             }
-            if (!isEmpty)
+            if (!isFull)
                 break;
         }
 
-        if (isEmpty)
+        // Base Case: If no empty cells are left, Sudoku is solved
+        if (isFull)
             return true;
 
-        for (int num = 1; num <= n; num++) {
+        // Step 2: Try digits 1 to 9
+        for (int num = 1; num <= 9; num++) {
             if (isSafe(board, row, col, num)) {
+                // Place digit
                 board[row][col] = num;
-                if (solveSudoku(board, n))
+
+                // Recursive call to solve for remaining cells
+                if (solveSudoku(board)) {
                     return true;
-                else
-                    board[row][col] = 0;
+                }
+
+                // Backtrack: if placing 'num' leads to no solution, reset it
+                board[row][col] = 0;
             }
         }
-        return false;
+        return false; // Triggers backtracking in the caller
+    }
+
+    /**
+     * Utility to print the 9x9 board.
+     */
+    static void printBoard(int[][] board) {
+        for (int i = 0; i < 9; i++) {
+            if (i % 3 == 0 && i != 0)
+                System.out.println("---------------------");
+            for (int j = 0; j < 9; j++) {
+                if (j % 3 == 0 && j != 0)
+                    System.out.print("| ");
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int[][] board = new int[9][9];
-        System.out.println("Enter Sudoku board (9x9), use 0 for empty cells:");
+
+        System.out.println("--- Sudoku Solver (Backtracking) ---");
+        System.out.println("Enter the 9x9 board (use 0 for empty cells):");
+
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 board[i][j] = sc.nextInt();
             }
         }
 
-        if (solveSudoku(board, 9)) {
-            System.out.println("Solved Sudoku:");
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 9; j++) {
-                    System.out.print(board[i][j] + " ");
-                }
-                System.out.println();
-            }
+        System.out.println("\nSolving...");
+        if (solveSudoku(board)) {
+            System.out.println("\n--- Solved Sudoku ---");
+            printBoard(board);
         } else {
-            System.out.println("No solution exists");
+            System.out.println("\nNo solution exists for the given Sudoku board.");
         }
+
         sc.close();
     }
 }
