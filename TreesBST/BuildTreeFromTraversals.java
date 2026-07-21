@@ -49,7 +49,7 @@ public class BuildTreeFromTraversals {
      */
     static Node buildTree(int[] preorder, int[] inorder) {
         // HashMap to store value -> index mapping for the inorder array
-        // This allows O(1) lookup of the root's position in inorder
+        // This allows O(1) lookup of the root's position in inorder at mid index
         HashMap<Integer, Integer> inMap = new HashMap<>();
         for (int i = 0; i < inorder.length; i++) {
             inMap.put(inorder[i], i);

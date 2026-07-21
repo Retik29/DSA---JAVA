@@ -38,7 +38,7 @@ public class BurnBinaryTree {
         buildQ.add(root);
 
         while (!buildQ.isEmpty()) {
-            Node node = buildQ.poll();
+            Node node = buildQ.poll();//add the first element of the queue to node and remove it from the queue
             if (node.data == source)
                 sourceNode = node;
             if (node.left != null) {
